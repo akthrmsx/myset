@@ -5,6 +5,7 @@ import "iter"
 type Set[T comparable] interface {
 	Add(element T)
 	Clear()
+	Difference(other Set[T]) Set[T]
 	Has(element T) bool
 	Intersection(other Set[T]) Set[T]
 	IsEmpty() bool
@@ -35,6 +36,21 @@ func (s *set[T]) Add(element T) {
 
 func (s *set[T]) Clear() {
 	s.elements = make(map[T]struct{})
+}
+
+func (s *set[T]) Difference(other Set[T]) Set[T] {
+	elements := make(map[T]struct{})
+	for element := range s.Iter() {
+		if !other.Has(element) {
+			elements[element] = struct{}{}
+		}
+	}
+	for element := range other.Iter() {
+		if !s.Has(element) {
+			elements[element] = struct{}{}
+		}
+	}
+	return &set[T]{elements: elements}
 }
 
 func (s *set[T]) Has(element T) bool {
