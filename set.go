@@ -3,9 +3,9 @@ package myset
 import "iter"
 
 type Set[T comparable] interface {
+	Add(element T)
 	Clear()
 	Has(element T) bool
-	Add(element T)
 	IsEmpty() bool
 	Iter() iter.Seq[T]
 	Len() int
@@ -25,6 +25,10 @@ func New[T comparable](values ...T) Set[T] {
 	return &set[T]{elements: elements}
 }
 
+func (s *set[T]) Add(element T) {
+	s.elements[element] = struct{}{}
+}
+
 func (s *set[T]) Clear() {
 	s.elements = make(map[T]struct{})
 }
@@ -32,10 +36,6 @@ func (s *set[T]) Clear() {
 func (s *set[T]) Has(element T) bool {
 	_, ok := s.elements[element]
 	return ok
-}
-
-func (s *set[T]) Add(element T) {
-	s.elements[element] = struct{}{}
 }
 
 func (s *set[T]) IsEmpty() bool {
