@@ -1,10 +1,13 @@
 package myset
 
+import "iter"
+
 type Set[T comparable] interface {
 	Clear()
 	Has(element T) bool
 	Add(element T)
 	IsEmpty() bool
+	Iter() iter.Seq[T]
 	Len() int
 	Remove(element T)
 	Values() []T
@@ -37,6 +40,16 @@ func (s *set[T]) Add(element T) {
 
 func (s *set[T]) IsEmpty() bool {
 	return s.Len() == 0
+}
+
+func (s *set[T]) Iter() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for element := range s.elements {
+			if !yield(element) {
+				return
+			}
+		}
+	}
 }
 
 func (s *set[T]) Len() int {
