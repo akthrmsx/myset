@@ -6,10 +6,14 @@ type Set[T comparable] interface {
 	Add(element T)
 	Clear()
 	Has(element T) bool
+	Intersection(other Set[T]) Set[T]
 	IsEmpty() bool
+	IsSubset(other Set[T]) bool
+	IsSuperset(other Set[T]) bool
 	Iter() iter.Seq[T]
 	Len() int
 	Remove(element T)
+	Union(other Set[T]) Set[T]
 	Values() []T
 }
 
@@ -38,8 +42,36 @@ func (s *set[T]) Has(element T) bool {
 	return ok
 }
 
+func (s *set[T]) Intersection(other Set[T]) Set[T] {
+	elements := make(map[T]struct{})
+	for element := range s.Iter() {
+		if other.Has(element) {
+			elements[element] = struct{}{}
+		}
+	}
+	return &set[T]{elements: elements}
+}
+
 func (s *set[T]) IsEmpty() bool {
 	return s.Len() == 0
+}
+
+func (s *set[T]) IsSubset(other Set[T]) bool {
+	for element := range s.Iter() {
+		if !other.Has(element) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *set[T]) IsSuperset(other Set[T]) bool {
+	for element := range other.Iter() {
+		if !s.Has(element) {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *set[T]) Iter() iter.Seq[T] {
@@ -60,9 +92,20 @@ func (s *set[T]) Remove(element T) {
 	delete(s.elements, element)
 }
 
+func (s *set[T]) Union(other Set[T]) Set[T] {
+	elements := make(map[T]struct{})
+	for element := range s.Iter() {
+		elements[element] = struct{}{}
+	}
+	for element := range other.Iter() {
+		elements[element] = struct{}{}
+	}
+	return &set[T]{elements: elements}
+}
+
 func (s *set[T]) Values() []T {
 	values := make([]T, 0, s.Len())
-	for element := range s.elements {
+	for element := range s.Iter() {
 		values = append(values, element)
 	}
 	return values
