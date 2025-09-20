@@ -1,10 +1,14 @@
 package myset
 
-import "iter"
+import (
+	"iter"
+	"maps"
+)
 
-type Set[T comparable] interface {
+type Set[T any] interface {
 	Add(element T)
 	Clear()
+	DeepCopy() Set[T]
 	Difference(other Set[T]) Set[T]
 	Has(element T) bool
 	Intersection(other Set[T]) Set[T]
@@ -36,6 +40,12 @@ func (s *set[T]) Add(element T) {
 
 func (s *set[T]) Clear() {
 	s.elements = make(map[T]struct{})
+}
+
+func (s *set[T]) DeepCopy() Set[T] {
+	elements := make(map[T]struct{}, s.Len())
+	maps.Copy(elements, s.elements)
+	return &set[T]{elements: elements}
 }
 
 func (s *set[T]) Difference(other Set[T]) Set[T] {
